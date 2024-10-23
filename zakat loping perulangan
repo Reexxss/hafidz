@@ -1,0 +1,106 @@
+import java.text.NumberFormat;
+import java.util.Locale;
+import java.util.Scanner;
+
+public class ZakatMaalCalculator {
+
+    public static final double PERSENTASE_ZAKAT = 2.5;
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Input data pribadi
+        System.out.print("Masukkan Nama Anda: ");
+        String nama = scanner.nextLine();
+        
+        System.out.print("Masukkan NIM Anda: ");
+        String nim = scanner.nextLine();
+
+        System.out.print("Masukkan Kelas Anda: ");
+        String kelas = scanner.nextLine();
+        
+        System.out.print("Masukkan Semester Anda: ");
+        String semester = scanner.nextLine();
+        
+        System.out.print("Masukkan Jurusan Anda: ");
+        String jurusan = scanner.nextLine();
+
+        // Input jumlah anggota keluarga
+        System.out.print("Masukkan jumlah anggota keluarga Anda: ");
+        int jumlahAnggotaKeluarga = scanner.nextInt();
+
+        // Input jumlah harta
+        System.out.print("Masukkan jumlah total harta Anda (dalam Rupiah): ");
+        double totalHarta = scanner.nextDouble();
+
+        // Hitung zakat maal per total harta
+        double totalZakatMaal = totalHarta * PERSENTASE_ZAKAT / 100;
+
+        // Hitung zakat maal per anggota keluarga
+        double zakatPerAnggota = totalZakatMaal / jumlahAnggotaKeluarga;
+
+        // Format angka dengan titik pemisah ribuan
+        NumberFormat numberFormat = NumberFormat.getInstance(new Locale("id", "ID"));
+        String formattedTotalHarta = numberFormat.format(totalHarta);
+        String formattedZakatMaal = numberFormat.format(totalZakatMaal);
+        String formattedZakatPerAnggota = numberFormat.format(zakatPerAnggota);
+
+        // Output hasil
+        System.out.println("\n========== Informasi Pribadi ==========");
+        System.out.println("Nama: " + nama);
+        System.out.println("NIM: " + nim);
+        System.out.println("Kelas: " + kelas);
+        System.out.println("Semester: " + semester);
+        System.out.println("Jurusan: " + jurusan);
+
+        System.out.println("\n========== Hasil Perhitungan Zakat Maal ==========");
+        System.out.println("Jumlah total harta: Rp" + formattedTotalHarta);
+        System.out.println("Jumlah zakat maal yang harus dibayarkan untuk " + jumlahAnggotaKeluarga + " orang: Rp" + formattedZakatMaal);
+        System.out.println("Jumlah zakat maal per anggota keluarga: Rp" + formattedZakatPerAnggota);
+
+        // Pembayaran bertahap
+        double totalPembayaran = 0;
+        int anggotaTerbayar = 0;
+        scanner.nextLine(); // Membersihkan input buffer
+
+        while (totalPembayaran < totalZakatMaal && anggotaTerbayar < jumlahAnggotaKeluarga) {
+            System.out.print("\nMasukkan jumlah yang ingin Anda bayar sekarang atau ketik 'out' untuk mengakhiri: ");
+            String inputPembayaran = scanner.nextLine();
+
+            // Cek jika pengguna ingin keluar dengan mengetik "out"
+            if (inputPembayaran.equalsIgnoreCase("out")) {
+                System.out.println("\nAnda memilih untuk mengakhiri pembayaran.");
+                break;
+            }
+
+            try {
+                double pembayaran = Double.parseDouble(inputPembayaran);
+                totalPembayaran += pembayaran;
+
+                if (totalPembayaran > anggotaTerbayar * zakatPerAnggota) {
+                    anggotaTerbayar = (int) (totalPembayaran / zakatPerAnggota);
+                }
+
+                System.out.println("Total yang sudah dibayar: Rp" + numberFormat.format(totalPembayaran));
+                System.out.println("Jumlah anggota keluarga yang sudah terbayar: " + anggotaTerbayar + " dari " + jumlahAnggotaKeluarga);
+                System.out.println("Sisa yang harus dibayar: Rp" + numberFormat.format(totalZakatMaal - totalPembayaran));
+            } catch (NumberFormatException e) {
+                System.out.println("Input tidak valid. Harap masukkan angka atau 'out' untuk keluar.");
+            }
+        }
+
+        // Cek jika pembayaran selesai atau dihentikan lebih awal
+        if (totalPembayaran >= totalZakatMaal) {
+            System.out.println("\nZakat maal untuk seluruh anggota keluarga sudah dibayarkan.");
+        } else {
+            System.out.println("\nPembayaran tidak mencukupi untuk seluruh anggota keluarga.");
+            System.out.println("Total anggota keluarga yang sudah terbayar: " + anggotaTerbayar + " dari " + jumlahAnggotaKeluarga);
+        }
+
+        // Tampilkan total pembayaran
+        System.out.println("\n========== Total Pembayaran ==========");
+        System.out.println("Total yang sudah dibayarkan untuk semua anggota keluarga: Rp" + numberFormat.format(totalPembayaran));
+
+        scanner.close();
+    }
+}
