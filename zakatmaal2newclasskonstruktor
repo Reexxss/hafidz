@@ -1,0 +1,215 @@
+import java.text.NumberFormat;
+import java.util.Locale;
+import java.util.Scanner;
+
+// Class to hold personal information
+class PersonalInfo {
+    private String nama;
+    private String nim;
+    private String kelas;
+    private String semester;
+    private String jurusan;
+    private int jumlahAnggotaKeluarga;
+
+    // Constructor
+    public PersonalInfo(String nama, String nim, String kelas, String semester, String jurusan, int jumlahAnggotaKeluarga) {
+        this.nama = nama;
+        this.nim = nim;
+        this.kelas = kelas;
+        this.semester = semester;
+        this.jurusan = jurusan;
+        this.jumlahAnggotaKeluarga = jumlahAnggotaKeluarga;
+    }
+
+    // Getters and Setters
+    public String getNama() {
+        return nama;
+    }
+
+    public void setNama(String nama) {
+        this.nama = nama;
+    }
+
+    public String getNim() {
+        return nim;
+    }
+
+    public void setNim(String nim) {
+        this.nim = nim;
+    }
+
+    public String getKelas() {
+        return kelas;
+    }
+
+    public void setKelas(String kelas) {
+        this.kelas = kelas;
+    }
+
+    public String getSemester() {
+        return semester;
+    }
+
+    public void setSemester(String semester) {
+        this.semester = semester;
+    }
+
+    public String getJurusan() {
+        return jurusan;
+    }
+
+    public void setJurusan(String jurusan) {
+        this.jurusan = jurusan;
+    }
+
+    public int getJumlahAnggotaKeluarga() {
+        return jumlahAnggotaKeluarga;
+    }
+
+    public void setJumlahAnggotaKeluarga(int jumlahAnggotaKeluarga) {
+        this.jumlahAnggotaKeluarga = jumlahAnggotaKeluarga;
+    }
+}
+
+// Class to handle zakat calculation and payment
+class ZakatDetails {
+    private static final double PERSENTASE_ZAKAT = 2.5;
+    private final double totalHarta;
+    private double totalZakatMaal;
+    private double zakatPerAnggota;
+    private double totalPembayaran;
+    private int anggotaTerbayar;
+    private final int jumlahAnggotaKeluarga;
+
+    // Constructor
+    public ZakatDetails(double totalHarta, int jumlahAnggotaKeluarga) {
+        this.totalHarta = totalHarta;
+        this.jumlahAnggotaKeluarga = jumlahAnggotaKeluarga;
+        calculateZakat();
+    }
+
+    // Calculate zakat based on total wealth
+    private void calculateZakat() {
+        this.totalZakatMaal = totalHarta * PERSENTASE_ZAKAT / 100;
+        this.zakatPerAnggota = totalZakatMaal / jumlahAnggotaKeluarga;
+    }
+
+    // Getters for calculated values
+    public double getTotalZakatMaal() {
+        return totalZakatMaal;
+    }
+
+    public double getZakatPerAnggota() {
+        return zakatPerAnggota;
+    }
+
+    public double getTotalPembayaran() {
+        return totalPembayaran;
+    }
+
+    public int getAnggotaTerbayar() {
+        return anggotaTerbayar;
+    }
+
+    // Method to make a payment towards zakat
+    public void bayarZakat(double pembayaran) {
+        totalPembayaran += pembayaran;
+        if (totalPembayaran > anggotaTerbayar * zakatPerAnggota) {
+            anggotaTerbayar = (int) (totalPembayaran / zakatPerAnggota);
+        }
+    }
+
+    public boolean isZakatPaidInFull() {
+        return totalPembayaran >= totalZakatMaal;
+    }
+
+    public double getRemainingZakat() {
+        return totalZakatMaal - totalPembayaran;
+    }
+
+    // Display Zakat details as a string
+@Override
+public String toString() {
+    NumberFormat numberFormat = NumberFormat.getInstance(new Locale("id", "ID"));
+    return "\n========== Zakat Detail ==========" +
+           "\nJumlah total harta: Rp" + numberFormat.format(totalHarta) +
+           "\nJumlah zakat maal yang harus dibayarkan: Rp" + numberFormat.format(totalZakatMaal) +
+           "\nJumlah zakat maal per anggota keluarga: Rp" + numberFormat.format(zakatPerAnggota);
+}
+
+}
+
+// Main class to run the program
+public class ZakatMaalCalculator2 {
+    public static void main(String[] args) {
+        try (Scanner scanner = new Scanner(System.in)) {
+            NumberFormat numberFormat = NumberFormat.getInstance(new Locale("id", "ID"));
+            
+            // Input personal information
+            System.out.print("Masukkan Nama Anda: ");
+            String nama = scanner.nextLine();
+            System.out.print("Masukkan NIM Anda: ");
+            String nim = scanner.nextLine();
+            System.out.print("Masukkan Kelas Anda: ");
+            String kelas = scanner.nextLine();
+            System.out.print("Masukkan Semester Anda: ");
+            String semester = scanner.nextLine();
+            System.out.print("Masukkan Jurusan Anda: ");
+            String jurusan = scanner.nextLine();
+            System.out.print("Masukkan jumlah anggota keluarga Anda: ");
+            int jumlahAnggotaKeluarga = scanner.nextInt();
+            
+            // Input wealth and create ZakatDetails
+            System.out.print("Masukkan jumlah total harta Anda (dalam Rupiah): ");
+            double totalHarta = scanner.nextDouble();
+            
+            PersonalInfo personalInfo = new PersonalInfo(nama, nim, kelas, semester, jurusan, jumlahAnggotaKeluarga);
+            ZakatDetails zakatDetails = new ZakatDetails(totalHarta, jumlahAnggotaKeluarga);
+            
+            // Display personal information and Zakat details
+            System.out.println("\n========== Informasi Pribadi ==========");
+            System.out.println("Nama: " + personalInfo.getNama());
+            System.out.println("NIM: " + personalInfo.getNim());
+            System.out.println("Kelas: " + personalInfo.getKelas());
+            System.out.println("Semester: " + personalInfo.getSemester());
+            System.out.println("Jurusan: " + personalInfo.getJurusan());
+            
+            // Show zakat details by calling the toString method
+            System.out.println(zakatDetails);
+            
+            // Payment process
+            scanner.nextLine(); // Clear buffer
+            while (!zakatDetails.isZakatPaidInFull() && zakatDetails.getAnggotaTerbayar() < jumlahAnggotaKeluarga) {
+                System.out.print("\nMasukkan jumlah yang ingin Anda bayar sekarang atau ketik 'out' untuk mengakhiri: ");
+                String inputPembayaran = scanner.nextLine();
+                
+                if (inputPembayaran.equalsIgnoreCase("out")) {
+                    System.out.println("\nAnda memilih untuk mengakhiri pembayaran.");
+                    break;
+                }
+                
+                try {
+                    double pembayaran = Double.parseDouble(inputPembayaran);
+                    zakatDetails.bayarZakat(pembayaran);
+                    
+                    System.out.println("Total yang sudah dibayar: Rp" + numberFormat.format(zakatDetails.getTotalPembayaran()));
+                    System.out.println("Jumlah anggota keluarga yang sudah terbayar: " + zakatDetails.getAnggotaTerbayar() + " dari " + jumlahAnggotaKeluarga);
+                    System.out.println("Sisa yang harus dibayar: Rp" + numberFormat.format(zakatDetails.getRemainingZakat()));
+                } catch (NumberFormatException e) {
+                    System.out.println("Input tidak valid. Harap masukkan angka atau 'out' untuk keluar.");
+                }
+            }
+            
+            // Final payment status
+            if (zakatDetails.isZakatPaidInFull()) {
+                System.out.println("\nZakat maal untuk seluruh anggota keluarga sudah dibayarkan.");
+            } else {
+                System.out.println("\nPembayaran tidak mencukupi untuk seluruh anggota keluarga.");
+                System.out.println("Total anggota keluarga yang sudah terbayar: " + zakatDetails.getAnggotaTerbayar() + " dari " + jumlahAnggotaKeluarga);
+            }
+            
+            System.out.println("\n========== Total Pembayaran ==========");
+            System.out.println("Total yang sudah dibayarkan untuk semua anggota keluarga: Rp" + numberFormat.format(zakatDetails.getTotalPembayaran()));
+        }
+    }
+}
